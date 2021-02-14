@@ -1016,6 +1016,24 @@ describe('EntityManagerSqlite2', () => {
     expect(() => e.books.remove(undefined as any)).not.toThrow();
   });
 
+  test('changing reference will issue update query', async () => {
+    const e = orm.em.create(Author4, { name: 'name', email: 'email' });
+    await orm.em.persistAndFlush(e);
+    orm.em.clear();
+
+    const ref = orm.em.getReference(Author4, e.id);
+    ref.name = 'new name';
+    ref.email = 'new email';
+
+    const mock = jest.fn();
+    const logger = new Logger(mock, ['query']);
+    Object.assign(orm.config, { logger });
+    await orm.em.flush();
+    expect(mock.mock.calls[0][0]).toMatch('begin');
+    expect(mock.mock.calls[1][0]).toMatch('update `author4` set `name` = ?, `email` = ?, `updated_at` = ? where `id` = ?');
+    expect(mock.mock.calls[2][0]).toMatch('commit');
+  });
+
   // this should run in ~600ms (when running single test locally)
   test('perf: one to many', async () => {
     const author = orm.em.create(Author4, { name: 'n', email: 'e' });

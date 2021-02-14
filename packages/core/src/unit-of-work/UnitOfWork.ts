@@ -68,7 +68,7 @@ export class UnitOfWork {
     const helper = entity.__helper!;
     helper!.__em = this.em;
 
-    if (data && helper!.__initialized && (refresh || !helper!.__originalEntityData)) {
+    if (data && helper.__initialized && (refresh || !helper.__originalEntityData)) {
       // we can't use the `data` directly here as it can contain fetch joined data, that can't be used for diffing the state
       helper!.__originalEntityData = this.comparator.prepareEntity(entity);
     }
@@ -317,9 +317,8 @@ export class UnitOfWork {
     }
 
     visited.add(entity);
-    const wrapped = entity.__helper!;
 
-    if (!wrapped.__initialized || this.removeStack.has(entity) || this.orphanRemoveStack.has(entity)) {
+    if (this.removeStack.has(entity) || this.orphanRemoveStack.has(entity)) {
       return;
     }
 
