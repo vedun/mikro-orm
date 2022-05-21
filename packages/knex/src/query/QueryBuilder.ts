@@ -45,42 +45,42 @@ export class QueryBuilder<T extends AnyEntity<T> = AnyEntity> {
   /** @internal */
   _populateMap: Dictionary<string> = {};
 
-  private aliasCounter = 0;
-  private flags: Set<QueryFlag> = new Set([QueryFlag.CONVERT_CUSTOM_TYPES]);
-  private finalized = false;
-  private _joins: Dictionary<JoinOptions> = {};
-  private _aliasMap: Dictionary<string> = {};
-  private _schema?: string;
-  private _cond: Dictionary = {};
-  private _data!: Dictionary;
-  private _orderBy: QueryOrderMap<T>[] = [];
-  private _groupBy: Field<T>[] = [];
-  private _having: Dictionary = {};
-  private _onConflict?: { fields: string[]; ignore?: boolean; merge?: EntityData<T> | Field<T>[]; where?: QBFilterQuery<T> }[];
-  private _limit?: number;
-  private _offset?: number;
-  private _joinedProps = new Map<string, PopulateOptions<any>>();
-  private _cache?: boolean | number | [string, number];
-  private _indexHint?: string;
-  private flushMode?: FlushMode;
-  private lockMode?: LockMode;
-  private lockTables?: string[];
-  private subQueries: Dictionary<string> = {};
-  private innerPromise?: Promise<T[] | number | QueryResult<T>>;
-  private readonly platform = this.driver.getPlatform();
-  private readonly knex = this.driver.getConnection(this.connectionType).getKnex();
-  private readonly helper: QueryBuilderHelper;
+  protected aliasCounter = 0;
+  protected flags: Set<QueryFlag> = new Set([QueryFlag.CONVERT_CUSTOM_TYPES]);
+  protected finalized = false;
+  protected _joins: Dictionary<JoinOptions> = {};
+  protected _aliasMap: Dictionary<string> = {};
+  protected _schema?: string;
+  protected _cond: Dictionary = {};
+  protected _data!: Dictionary;
+  protected _orderBy: QueryOrderMap<T>[] = [];
+  protected _groupBy: Field<T>[] = [];
+  protected _having: Dictionary = {};
+  protected _onConflict?: { fields: string[]; ignore?: boolean; merge?: EntityData<T> | Field<T>[]; where?: QBFilterQuery<T> }[];
+  protected _limit?: number;
+  protected _offset?: number;
+  protected _joinedProps = new Map<string, PopulateOptions<any>>();
+  protected _cache?: boolean | number | [string, number];
+  protected _indexHint?: string;
+  protected flushMode?: FlushMode;
+  protected lockMode?: LockMode;
+  protected lockTables?: string[];
+  protected subQueries: Dictionary<string> = {};
+  protected innerPromise?: Promise<T[] | number | QueryResult<T>>;
+  protected readonly platform = this.driver.getPlatform();
+  protected readonly knex = this.driver.getConnection(this.connectionType).getKnex();
+  protected readonly helper: QueryBuilderHelper;
 
   /**
    * @internal
    */
-  constructor(private readonly entityName: string,
-              private readonly metadata: MetadataStorage,
-              private readonly driver: AbstractSqlDriver,
-              private readonly context?: Knex.Transaction,
+  constructor(protected readonly entityName: string,
+              protected readonly metadata: MetadataStorage,
+              protected readonly driver: AbstractSqlDriver,
+              protected readonly context?: Knex.Transaction,
               alias?: string,
-              private connectionType?: ConnectionType,
-              private readonly em?: SqlEntityManager) {
+              protected connectionType?: ConnectionType,
+              protected readonly em?: SqlEntityManager) {
     if (alias) {
       this.aliasCounter++;
     }

@@ -634,9 +634,13 @@ export abstract class AbstractSqlDriver<C extends AbstractSqlConnection = Abstra
   protected resolveConnectionType(args: { ctx?: Transaction<Knex.Transaction>; connectionType?: ConnectionType}) {
     if (args.ctx) {
       return 'write';
-    } else if (args.connectionType) {
+    }
+
+    if (args.connectionType) {
       return args.connectionType;
-    } else if (this.config.get('preferReadReplicas') === true) {
+    }
+
+    if (this.config.get('preferReadReplicas')) {
       return 'read';
     }
 
