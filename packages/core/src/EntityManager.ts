@@ -450,7 +450,7 @@ export class EntityManager<D extends IDatabaseDriver = IDatabaseDriver> {
         }
 
         return ret;
-      }, { ...options, eventBroadcaster: new TransactionEventBroadcaster(em) });
+      }, { ...options, eventBroadcaster: new TransactionEventBroadcaster(em, undefined, { topLevelTransaction: !options.ctx }) });
     });
   }
 
@@ -458,7 +458,10 @@ export class EntityManager<D extends IDatabaseDriver = IDatabaseDriver> {
    * Starts new transaction bound to this EntityManager. Use `ctx` parameter to provide the parent when nesting transactions.
    */
   async begin(options: TransactionOptions = {}): Promise<void> {
-    this.transactionContext = await this.getConnection('write').begin({ ...options, eventBroadcaster: new TransactionEventBroadcaster(this) });
+    this.transactionContext = await this.getConnection('write').begin({
+      ...options,
+      eventBroadcaster: new TransactionEventBroadcaster(this, undefined, { topLevelTransaction: !options.ctx }),
+    });
   }
 
   /**
