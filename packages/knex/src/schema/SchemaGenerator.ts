@@ -1,5 +1,5 @@
 ﻿import type { Knex } from 'knex';
-import type { Dictionary, EntityMetadata } from '@mikro-orm/core';
+import type { Dictionary, EntityMetadata, Transaction } from '@mikro-orm/core';
 import { AbstractSchemaGenerator } from '@mikro-orm/core';
 import type { Check, Column, ForeignKey, Index, SchemaDifference, TableDifference } from '../typings';
 import { DatabaseSchema } from './DatabaseSchema';
@@ -107,13 +107,7 @@ export class SchemaGenerator extends AbstractSchemaGenerator<AbstractSqlDriver> 
     }
 
     await this.execute(this.helper.enableForeignKeysSQL());
-
-    if (this.em) {
-      const allowGlobalContext = this.config.get('allowGlobalContext');
-      this.config.set('allowGlobalContext', true);
-      this.em.clear();
-      this.config.set('allowGlobalContext', allowGlobalContext);
-    }
+    this.clearIdentityMap();
   }
 
   async getDropSchemaSQL(options: { wrap?: boolean; dropMigrationsTable?: boolean; schema?: string } = {}): Promise<string> {
@@ -438,12 +432,12 @@ export class SchemaGenerator extends AbstractSchemaGenerator<AbstractSqlDriver> 
     await this.driver.execute(this.helper.getDropDatabaseSQL('' + this.knex.ref(name)));
   }
 
-  async execute(sql: string, options: { wrap?: boolean } = {}) {
+  async execute(sql: string, options: { wrap?: boolean; ctx?: Transaction } = {}) {
     options.wrap ??= false;
     const lines = this.wrapSchema(sql, options).split('\n').filter(i => i.trim());
 
     for (const line of lines) {
-      await this.driver.execute(line);
+      await this.driver.execute(line, undefined, 'all', options.ctx);
     }
   }
 
